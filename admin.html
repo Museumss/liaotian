@@ -56,11 +56,6 @@ async function sendMsg() {
       method:"POST",
       body: text
     })
-    const div = document.createElement("div");
-    div.className = "msg admin";
-    div.innerText = text;
-    msgBox.appendChild(div);
-    msgBox.scrollTop = msgBox.scrollHeight;
     input.value = "";
   }catch(e){
     console.error("发送消息异常",e);
