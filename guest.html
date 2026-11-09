@@ -29,6 +29,11 @@ const input = document.getElementById("txt");
 const sendBtn = document.getElementById("sendBtn");
 const rendered = new Set();
 
+// 生成简单唯一id
+function uuid(){
+  return Math.random().toString(36).slice(2)+Date.now().toString(36);
+}
+
 async function pullMsg(){
   try{
     const res = await fetch(API_HOST + "/pull");
@@ -51,10 +56,14 @@ async function pullMsg(){
 async function sendMsg() {
   const text = input.value.trim();
   if (!text) return;
+  const mid = uuid();
   try{
     await fetch(API_HOST + "/send", {
       method:"POST",
-      body: text
+      body: text,
+      headers:{
+        "X-Msg-Id": mid
+      }
     })
     input.value = "";
   }catch(e){
