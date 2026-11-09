@@ -23,8 +23,8 @@ body{max-width:620px;margin:12px auto;padding:10px;}
   <button id="sendBtn">发送</button>
 </div>
 <script>
-// 替换成你的worker地址
-const API_HOST = "https://liaotian.jiujinshang.workers.dev";
+// 这里不用改，自动适配当前域名
+const API_HOST = window.location.origin;
 
 const msgBox = document.getElementById("msgWrap");
 const input = document.getElementById("txt");
