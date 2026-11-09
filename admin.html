@@ -27,21 +27,21 @@ const API_HOST = window.location.origin;
 const msgBox = document.getElementById("msgWrap");
 const input = document.getElementById("txt");
 const sendBtn = document.getElementById("sendBtn");
-let lastTime = 0;
+const rendered = new Set();
 
 async function pullMsg(){
   try{
     const res = await fetch(API_HOST + "/pull");
     const msgs = await res.json();
     for(const m of msgs){
-      if(m.t > lastTime){
-        lastTime = m.t;
-        const div = document.createElement("div");
-        div.className = "msg " + m.role;
-        div.innerText = m.content;
-        msgBox.appendChild(div);
-        msgBox.scrollTop = msgBox.scrollHeight;
-      }
+      const key = m.t + "";
+      if(rendered.has(key)) continue;
+      rendered.add(key);
+      const div = document.createElement("div");
+      div.className = "msg " + m.role;
+      div.innerText = m.content;
+      msgBox.appendChild(div);
+      msgBox.scrollTop = msgBox.scrollHeight;
     }
   }catch(e){
     console.error("拉取消息异常",e);
