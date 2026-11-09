@@ -24,44 +24,53 @@ body{max-width:620px;margin:12px auto;padding:10px;}
 </div>
 <script>
 const API_HOST = window.location.origin;
-
 const msgBox = document.getElementById("msgWrap");
 const input = document.getElementById("txt");
 const sendBtn = document.getElementById("sendBtn");
 let lastTime = 0;
 
 async function pullMsg(){
-  const res = await fetch(API_HOST + "/pull");
-  const msgs = await res.json();
-  for(const m of msgs){
-    if(m.t > lastTime){
-      lastTime = m.t;
-      const div = document.createElement("div");
-      div.className = "msg " + m.role;
-      div.innerText = m.content;
-      msgBox.appendChild(div);
-      msgBox.scrollTop = msgBox.scrollHeight;
+  try{
+    const res = await fetch(API_HOST + "/pull");
+    const msgs = await res.json();
+    for(const m of msgs){
+      if(m.t > lastTime){
+        lastTime = m.t;
+        const div = document.createElement("div");
+        div.className = "msg " + m.role;
+        div.innerText = m.content;
+        msgBox.appendChild(div);
+        msgBox.scrollTop = msgBox.scrollHeight;
+      }
     }
+  }catch(e){
+    console.error("拉取消息异常",e);
   }
 }
 
 async function sendMsg() {
   const text = input.value.trim();
   if (!text) return;
-  await fetch(API_HOST + "/send-admin", {
-    method:"POST",
-    body: text
-  })
-  const div = document.createElement("div");
-  div.className = "msg admin";
-  div.innerText = text;
-  msgBox.appendChild(div);
-  msgBox.scrollTop = msgBox.scrollHeight;
-  input.value = "";
+  try{
+    await fetch(API_HOST + "/send-admin", {
+      method:"POST",
+      body: text
+    })
+    const div = document.createElement("div");
+    div.className = "msg admin";
+    div.innerText = text;
+    msgBox.appendChild(div);
+    msgBox.scrollTop = msgBox.scrollHeight;
+    input.value = "";
+  }catch(e){
+    console.error("发送消息异常",e);
+  }
 }
 
 sendBtn.onclick = sendMsg;
-input.onkeydown = e => e.key === "Enter" && sendMsg();
+input.onkeydown = e => {
+  if(e.key === "Enter") sendMsg();
+};
 setInterval(pullMsg,1200);
 pullMsg();
 </script>
