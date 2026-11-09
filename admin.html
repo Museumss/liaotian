@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>客服后台</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui, sans-serif;}
+body{max-width:620px;margin:12px auto;padding:10px;}
+#msgWrap{height:65vh;border:1px solid #e5e7eb;border-radius:10px;padding:10px;overflow-y:auto;margin-bottom:12px;background:#fafafa;}
+.msg{padding:7px 12px;border-radius:8px;margin:5px 0;max-width:75%;word-break:break-all;}
+.guest{background:#2563eb;color:#fff;margin-left:auto;}
+.admin{background:#e4e4e7;color:#18181b;}
+.ctrl{display:flex;gap:8px}
+#txt{flex:1;padding:10px;border:1px solid #ccc;border-radius:8px;outline:none}
+#sendBtn{padding:0 16px;border:none;border-radius:8px;background:#222;color:#fff;cursor:pointer}
+</style>
+</head>
+<body>
+<div id="msgWrap"></div>
+<div class="ctrl">
+  <input id="txt" placeholder="客服回复...">
+  <button id="sendBtn">发送回复</button>
+</div>
+<script>
+// 改成你的worker地址
+const API_HOST = "https://xxx.xxx.workers.dev";
+
+const msgBox = document.getElementById("msgWrap");
+const input = document.getElementById("txt");
+const sendBtn = document.getElementById("sendBtn");
+let lastTime = 0;
+
+async function pullMsg(){
+  const res = await fetch(API_HOST + "/pull");
+  const msgs = await res.json();
+  for(const m of msgs){
+    if(m.t > lastTime){
+      lastTime = m.t;
+      const div = document.createElement("div");
+      div.className = "msg " + m.role;
+      div.innerText = m.content;
+      msgBox.appendChild(div);
+      msgBox.scrollTop = msgBox.scrollHeight;
+    }
+  }
+}
+
+async function sendMsg() {
+  const text = input.value.trim();
+  if (!text) return;
+  await fetch(API_HOST + "/send-admin", {
+    method:"POST",
+    body: text
+  })
+  const div = document.createElement("div");
+  div.className = "msg admin";
+  div.innerText = text;
+  msgBox.appendChild(div);
+  msgBox.scrollTop = msgBox.scrollHeight;
+  input.value = "";
+}
+
+sendBtn.onclick = sendMsg;
+input.onkeydown = e => e.key === "Enter" && sendMsg();
+setInterval(pullMsg,1200);
+pullMsg();
+</script>
+</body>
+</html>
